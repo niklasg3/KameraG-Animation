@@ -6,7 +6,7 @@
 import processing.video.*;
 import oscP5.*;
 import netP5.*;
-int timeout;
+int timeout = 0;
 
 Movie myMovie;
 
@@ -99,7 +99,7 @@ void draw() {
             blue += blue(video.pixels[index]);
           }
         }
-        downPix[boxNum] =  green/tot;
+        downPix[boxNum] = (int) green/tot;
         // downPix[boxNum] = color((float)red/tot, (float)green/tot, (float)blue/tot);
         fill(downPix[boxNum]);
 
@@ -120,16 +120,17 @@ void draw() {
       sendOsc(downPix);
 
     if (timeout > 0) {
+      klasse = 1;
       timeout = timeout - 1;
-    } else {
-      klasse = 1;      
+    } else if (timeout <= 0) {
+      klasse = 2;      
     }
 
     if (klasse == 1) {
+      image(myMovie, 0, 0);
+    } if (klasse == 2) {
       image(photo, 0, 0);
       photo.resize(width,height);
-    } else if (klasse == 2) {
-      image(myMovie, 0, 0);
     }
     
     first = false;
@@ -140,12 +141,11 @@ void draw() {
 void oscEvent(OscMessage msg) {
   if (msg.checkAddrPattern("/output_1")) {
     klasse = 1;
-  }
-  if (msg.checkAddrPattern("/output_2")) {
-    klasse = 2;
     timeout = 120;
   }
-
+  if (msg.checkAddrPattern("/output_2")) {
+  
+  }
 }
 
 
