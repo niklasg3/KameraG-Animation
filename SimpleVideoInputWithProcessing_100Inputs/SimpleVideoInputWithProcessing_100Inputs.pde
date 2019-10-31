@@ -6,10 +6,11 @@
 import processing.video.*;
 import oscP5.*;
 import netP5.*;
+// laver en variable som jeg bruger til at lave en timer med. 
 int timeout = 0;
-
+// Definere video
 Movie myMovie;
-
+// Klasse som bruges til at definere hvilke klassifikation som bliver brugt vi Wekinator
 int klasse = 0;
 int numPixelsOrig;
 int numPixels;
@@ -32,10 +33,13 @@ NetAddress dest;
 
 void setup() {
   // colorMode(HSB);
-  size(1366, 768, P2D);
+  // Sørger for at billedet fylder hele skærmen
+  size(1920, 1080, P2D);
+  //Her beder jeg den om at lytte til wekinator
   oscP5 = new OscP5(this, 12000);  
+  // Definere Photo til at være et billede
   photo = loadImage("TestholmGaa.jpg");
-
+  // Sørger for at loade billdet og sætte det i loop.
   myMovie = new Movie(this, "GaaVideo.mov");
   myMovie.loop();
 
@@ -118,14 +122,15 @@ void draw() {
     
     if (frameCount % 2 == 0)
       sendOsc(downPix);
-
+// Her sørger jeg får at hvis timeren er større end 0 begynder den at tælle nedad og at det så er klasse 1. Ellers hvis den er større eller det samme som 0 er det klasse 2. Når wekinator sætter Klasse værdien til at være 2, vil timeren starte på 120.
+// efter noget tid når 120 er nået ned under 0, vil billedet skifte tilbage til klasse 1 (billede)
     if (timeout > 0) {
       klasse = 1;
       timeout = timeout - 1;
     } else if (timeout <= 0) {
       klasse = 2;      
     }
-
+// Her tegner jeg video (klasse 1) og billede (klasse 2), men delikere billede og video ud til klasse. Tjekker om det er den rigtige klasse, og hvis det er så skal den vise det rigtige billede/video
     if (klasse == 1) {
       image(myMovie, 0, 0);
     } if (klasse == 2) {
@@ -138,6 +143,7 @@ void draw() {
     text("Sending 100 inputs to port 6448 using message /wek/inputs", 10, 10);
   }
 }
+// Her tjekker jeg hvilke output det er og hvis det er output 1, sætter den det til klasse 1 og sætter timeout værdien til 120. Det er mere end 0 så den begynder at tælle ned, som jeg forklarede længere oppe
 void oscEvent(OscMessage msg) {
   if (msg.checkAddrPattern("/output_1")) {
     klasse = 1;
@@ -165,6 +171,7 @@ void sendOsc(int[] px) {
   }
   oscP5.send(msg, dest);
 }
+// caller et event for at få videon til at afspille hvert frame
 void movieEvent(Movie m) {
   m.read();
 }
